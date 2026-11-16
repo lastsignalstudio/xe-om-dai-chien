@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#071a2c">
+<title>XE ÔM ĐẠI CHIẾN v0.3.2</title>
+<style>
+html,body{margin:0;min-height:100%;background:#071a2c;color:#fff;font:16px system-ui;display:grid;place-items:center}
+#status{max-width:360px;padding:24px;text-align:center;line-height:1.5}
+</style>
+</head>
+<body>
+<div id="status">Đang nạp bản vá camera v0.3.2…</div>
+<script>
+(async()=>{
+ const status=document.getElementById('status');
+ try{
+  const response=await fetch(new URL('./index-v0.3.html',location.href),{cache:'no-store'});
+  if(!response.ok) throw new Error('Không tải được index-v0.3.html (HTTP '+response.status+').');
+  let source=await response.text();
+  const patches=[
+   [
+    '<title>XE ÔM ĐẠI CHIẾN v0.3</title>',
+    '<title>XE ÔM ĐẠI CHIẾN v0.3.2</title>'
+   ],
+   [
+    'CITY RIDER EXPERIENCE · v0.3',
+    'CITY RIDER EXPERIENCE · v0.3.2 CAMERA FIX'
+   ],
+   [
+    'XE ÔM ĐẠI CHIẾN · v0.3 CITY RIDER EXPERIENCE',
+    'XE ÔM ĐẠI CHIẾN · v0.3.2 CAMERA FIX & RIDER POSITION'
+   ],
+   [
+    "const camera=new THREE.PerspectiveCamera(72,innerWidth/innerHeight,.1,220);camera.position.set(0,2.15,5.3);camera.rotation.order='YXZ';",
+    "const camera=new THREE.PerspectiveCamera(66,innerWidth/innerHeight,.1,260);camera.position.set(0,2.15,5.3);camera.rotation.order='YXZ';"
+   ],
+   [
+    'const playerRig=new THREE.Group();scene.add(playerRig);playerRig.position.set(0,0,4.2);',
+    'const playerRig=new THREE.Group();scene.add(playerRig);playerRig.position.set(0,0,4.2);playerRig.visible=false;'
+   ],
+   [
+    "let cameraMode=0;function setCameraMode(){cameraMode=(cameraMode+1)%2;bike.visible=cameraMode===0;$('cameraBtn').textContent=cameraMode===0?'CAM: 1P':'CAM: 3P';if(cameraMode===0){camera.position.set(0,2.15,5.3);camera.rotation.set(0,0,0,'YXZ')}else{camera.position.set(state.x,4.0,12);camera.lookAt(state.x,1,-8)}}",
+    "let cameraMode=0;function setCameraMode(){cameraMode=(cameraMode+1)%2;bike.visible=cameraMode===0;playerRig.visible=cameraMode===1;$('cameraBtn').textContent=cameraMode===0?'CAM: 1P':'CAM: 3P';if(cameraMode===0){camera.position.set(0,2.15,5.3);camera.rotation.set(0,0,0,'YXZ')}else{camera.position.set(state.x*.55,4.8,13.5);camera.lookAt(state.x,1.35,3.2)}}"
+   ],
+   [
+    "camera.position.x=THREE.MathUtils.damp(camera.position.x,state.x*.34,.9,dt);camera.rotation.z=THREE.MathUtils.damp(camera.rotation.z,(state.left?.075:0)+(state.right?-.075:0),4,dt);playerRig.position.x=state.x;playerRig.rotation.z=THREE.MathUtils.damp(playerRig.rotation.z,state.steer,5,dt);if(cameraMode===1){camera.position.x=THREE.MathUtils.damp(camera.position.x,state.x,.9,dt);camera.lookAt(state.x,1,-8)}if(state.hitTimer>0)state.hitTimer=Math.max(0,state.hitTimer-dt);const shake=state.hitTimer>0?state.hitTimer*.12:0;camera.position.y=2.15+Math.sin(performance.now()*.012)*.025*(state.speed/17)+(Math.random()-.5)*shake;camera.rotation.x=(Math.random()-.5)*shake*.22;",
+    "playerRig.position.x=state.x;playerRig.rotation.z=THREE.MathUtils.damp(playerRig.rotation.z,state.steer,5,dt);if(cameraMode===0){camera.position.x=THREE.MathUtils.damp(camera.position.x,state.x*.34,.9,dt);camera.position.y=2.15+Math.sin(performance.now()*.012)*.025*(state.speed/17);camera.position.z=THREE.MathUtils.damp(camera.position.z,5.3,.9,dt);camera.rotation.z=THREE.MathUtils.damp(camera.rotation.z,(state.left?.075:0)+(state.right?-.075:0),4,dt);camera.rotation.x=0}else{camera.position.x=THREE.MathUtils.damp(camera.position.x,state.x*.55,.8,dt);camera.position.y=THREE.MathUtils.damp(camera.position.y,4.8,.8,dt);camera.position.z=THREE.MathUtils.damp(camera.position.z,13.5,.8,dt);camera.lookAt(state.x,1.35,3.2)}if(state.hitTimer>0)state.hitTimer=Math.max(0,state.hitTimer-dt);const shake=state.hitTimer>0?state.hitTimer*.12:0;if(cameraMode===0){camera.position.y+=(Math.random()-.5)*shake;camera.rotation.x=(Math.random()-.5)*shake*.22}else if(shake>0){camera.position.y+=(Math.random()-.5)*shake*.15}"
+   ],
+   [
+    "function reset(){state.running=true;state.ended=false;state.speed=0;state.x=0;state.time=90;",
+    "function reset(){state.running=true;state.ended=false;state.speed=0;state.x=0;cameraMode=0;bike.visible=true;playerRig.visible=false;camera.position.set(0,2.15,5.3);camera.rotation.set(0,0,0,'YXZ');$('cameraBtn').textContent='CAM: 1P';state.time=90;"
+   ]
+  ];
+  for(const [before,after] of patches){
+   if(!source.includes(before)) throw new Error('Không tìm thấy đoạn mã nền cần vá: '+before.slice(0,95));
+   source=source.replace(before,after);
+  }
+  if(!source.includes("playerRig.visible=cameraMode===1")||!source.includes("CAMERA FIX & RIDER POSITION")) throw new Error('Kiểm tra bản vá không đạt.');
+  document.open();
+  document.write(source);
+  document.close();
+ }catch(error){
+  status.innerHTML='Không thể áp dụng bản vá: '+String(error.message)+'<br><br>Hãy giữ nguyên index-v0.3.html trong repository và thử tải lại sau khi GitHub Pages cập nhật.';
+ }
+})();
+</script>
+</body>
+</html>
