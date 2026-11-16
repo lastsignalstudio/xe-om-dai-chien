@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#071a2c">
+<title>XE ÔM ĐẠI CHIẾN v0.3.1</title>
+<style>
+html,body{margin:0;min-height:100%;background:#071a2c;color:#fff;font:16px system-ui;display:grid;place-items:center}
+#status{max-width:340px;padding:24px;text-align:center;line-height:1.5}
+</style>
+</head>
+<body>
+<div id="status">Đang tải bản vá camera v0.3.1…</div>
+<script>
+(async()=>{
+ const status=document.getElementById('status');
+ try{
+  const url=new URL('./index-v0.3.html',location.href);
+  const response=await fetch(url,{cache:'no-store'});
+  if(!response.ok) throw new Error('Không tải được index-v0.3.html ('+response.status+').');
+  let source=await response.text();
+  const replacements=[
+   ["<title>XE ÔM ĐẠI CHIẾN v0.3</title>","<title>XE ÔM ĐẠI CHIẾN v0.3.1</title>"],
+   ["CITY RIDER EXPERIENCE · v0.3","CITY RIDER EXPERIENCE · v0.3.1"],
+   ["v0.3 · Tài xế 3D · Hành khách · GPS · Bản đồ · Garage","v0.3.1 · Camera 1P/3P tối ưu · Tài xế + hành khách"],
+   ["XE ÔM ĐẠI CHIẾN · v0.3 CITY RIDER EXPERIENCE","XE ÔM ĐẠI CHIẾN · v0.3.1 CAMERA & RIDER FIX"],
+   ["const camera=new THREE.PerspectiveCamera(72,innerWidth/innerHeight,.1,220);camera.position.set(0,2.15,5.3);camera.rotation.order='YXZ';",
+    "const camera=new THREE.PerspectiveCamera(68,innerWidth/innerHeight,.1,260);camera.position.set(0,2.15,5.3);camera.rotation.order='YXZ';"],
+   ["const driver=makePerson(0x1686bd,0xffd447);driver.position.set(0,.15,.28);playerRig.add(driver);\nconst passenger=makePerson(0xf06b8a,0x263e50);passenger.position.set(0,.15,.85);passenger.visible=false;playerRig.add(passenger);",
+    "const driver=makePerson(0x1686bd,0xffd447);driver.scale.set(.86,.86,.86);driver.position.set(0,.08,.12);playerRig.add(driver);\nconst passenger=makePerson(0xf06b8a,0x263e50);passenger.scale.set(.78,.78,.78);passenger.position.set(0,.08,.92);passenger.visible=false;playerRig.add(passenger);"],
+   ["let cameraMode=0;function setCameraMode(){cameraMode=(cameraMode+1)%2;bike.visible=cameraMode===0;$('cameraBtn').textContent=cameraMode===0?'CAM: 1P':'CAM: 3P';if(cameraMode===0){camera.position.set(0,2.15,5.3);camera.rotation.set(0,0,0,'YXZ')}else{camera.position.set(state.x,4.0,12);camera.lookAt(state.x,1,-8)}}",
+    "let cameraMode=0;function setCameraMode(){cameraMode=(cameraMode+1)%2;bike.visible=cameraMode===0;$('cameraBtn').textContent=cameraMode===0?'CAM: 1P':'CAM: 3P';if(cameraMode===0){camera.position.set(0,2.15,5.3);camera.rotation.set(0,0,0,'YXZ')}else{camera.position.set(state.x*.55,5.0,14.5);camera.lookAt(state.x,1.35,1.0)}}"],
+   ["camera.position.x=THREE.MathUtils.damp(camera.position.x,state.x*.34,.9,dt);camera.rotation.z=THREE.MathUtils.damp(camera.rotation.z,(state.left?.075:0)+(state.right?-.075:0),4,dt);playerRig.position.x=state.x;playerRig.rotation.z=THREE.MathUtils.damp(playerRig.rotation.z,state.steer,5,dt);if(cameraMode===1){camera.position.x=THREE.MathUtils.damp(camera.position.x,state.x,.9,dt);camera.lookAt(state.x,1,-8)}if(state.hitTimer>0)state.hitTimer=Math.max(0,state.hitTimer-dt);const shake=state.hitTimer>0?state.hitTimer*.12:0;camera.position.y=2.15+Math.sin(performance.now()*.012)*.025*(state.speed/17)+(Math.random()-.5)*shake;camera.rotation.x=(Math.random()-.5)*shake*.22;",
+    "playerRig.position.x=state.x;playerRig.rotation.z=THREE.MathUtils.damp(playerRig.rotation.z,state.steer,5,dt);if(cameraMode===0){camera.position.x=THREE.MathUtils.damp(camera.position.x,state.x*.34,.9,dt);camera.position.y=2.15+Math.sin(performance.now()*.012)*.025*(state.speed/17);camera.rotation.z=THREE.MathUtils.damp(camera.rotation.z,(state.left?.075:0)+(state.right?-.075:0),4,dt);camera.rotation.x=0}else{camera.position.x=THREE.MathUtils.damp(camera.position.x,state.x*.55,.85,dt);camera.position.y=THREE.MathUtils.damp(camera.position.y,5.0,.8,dt);camera.position.z=THREE.MathUtils.damp(camera.position.z,14.5,.8,dt);camera.lookAt(state.x,1.35,1.0)}if(state.hitTimer>0)state.hitTimer=Math.max(0,state.hitTimer-dt);const shake=state.hitTimer>0?state.hitTimer*.12:0;if(cameraMode===0){camera.position.y+=(Math.random()-.5)*shake;camera.rotation.x=(Math.random()-.5)*shake*.22}else if(shake>0){camera.position.y+=(Math.random()-.5)*shake*.25}"],
+   ["function reset(){state.running=true;state.ended=false;state.speed=0;state.x=0;state.time=90;",
+    "function reset(){state.running=true;state.ended=false;state.speed=0;state.x=0;cameraMode=0;bike.visible=true;camera.position.set(0,2.15,5.3);camera.rotation.set(0,0,0,'YXZ');$('cameraBtn').textContent='CAM: 1P';state.time=90;"]
+  ];
+  for(const [before,after] of replacements){
+   if(!source.includes(before)) throw new Error('Không tìm thấy đoạn mã cần vá: '+before.slice(0,70));
+   source=source.replace(before,after);
+  }
+  if(!source.includes('v0.3.1')||!source.includes("camera.position.y,5.0")) throw new Error('Kiểm tra bản vá không đạt.');
+  document.open();document.write(source);document.close();
+ }catch(err){
+  status.textContent='Không thể tải bản vá: '+err.message+' Hãy kiểm tra rằng index-v0.3.html đã có trong cùng repository và GitHub Pages đã cập nhật.';
+ }
+})();
+</script>
+</body>
+</html>
